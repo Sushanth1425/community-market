@@ -1,0 +1,17 @@
+node_modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+.env
+.env.local
+.env.*.local
+
+logs
+*.log
+
+dist/
+coverage/
+
+notes.txt
+util/testSocket.js

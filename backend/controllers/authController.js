@@ -50,3 +50,37 @@ module.exports.loginAuth= async(req, res)=>{
     return res.status(500).json({msg: "Server error! Try again !!"})
   }
 }
+
+module.exports.googleOauth= async(req, res)=> {
+  try{
+    const {idToken}= req.body;
+    if (!idToken) return res.status(400).json({ msg: 'Missing idToken' })
+
+    const decoded= await admin.auth(verifyIdToken(idToken))
+    const { uid, email, name, picture}= decoded;
+
+    if (!email) return res.status(400).json({ msg: 'No email in token' });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        username: name || email.split('@')[0],
+        email,
+        password: Math.random().toString(36).slice(-12), 
+      });
+      await user.save();
+    }
+    const payload = { id: user._id };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    return res.status(200).json({
+      msg: 'Logged in with Google',
+      token,
+      user: { id: user._id, username: user.username, email: user.email, role: user.role, averageRating: user.averageRating || 0 }
+    });
+
+  } catch (err) {
+    console.error('Google OAuth error:', err);
+    return res.status(500).json({ msg: 'OAuth verification failed' });
+  }
+}

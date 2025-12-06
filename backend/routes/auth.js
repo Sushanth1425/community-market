@@ -1,10 +1,10 @@
 const router= require('express').Router()
 
-const {loginAuth, signupAuth}= require('../controllers/authController')
+const {loginAuth, signupAuth, googleOauth}= require('../controllers/authController')
 const { verifyToken } = require('../middlewares/authMiddleware')
 
 router.post('/signup', signupAuth)
-
+router.post('/google', googleOauth)
 router.post('/login', loginAuth)
 
 router.post('/logout', async(req,res)=>{
